@@ -6,7 +6,7 @@
         <name>Is_Opportunity_Renewal</name>
         <label>Is Opportunity Renewal</label>
         <locationX>182</locationX>
-        <locationY>503</locationY>
+        <locationY>611</locationY>
         <defaultConnector>
             <targetReference>Update_Opportunity_0_0</targetReference>
         </defaultConnector>
@@ -31,7 +31,7 @@
         <name>Opportunity_Record_Type</name>
         <label>Opportunity Record Type</label>
         <locationX>380</locationX>
-        <locationY>287</locationY>
+        <locationY>395</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>Non_Essentials</name>
@@ -49,8 +49,20 @@
             <label>Non-Essentials</label>
         </rules>
     </decisions>
-    <description>V1 - Flow Created for Opp automations</description>
+    <description>v2: SS (NSG) - Added &quot;Standard Updates&quot; node
+V1 - Flow Created for Opp automations</description>
     <environments>Default</environments>
+    <formulas>
+        <name>OpportunityNameLogic</name>
+        <dataType>String</dataType>
+        <expression>IF(
+NOT(ISBLANK({!$Record.SBQQ__AmendedContract__c})), LEFT({!$Record.Account.Name}, 120) + &apos; - Amendment to Contract #&apos; +{!$Record.SBQQ__AmendedContract__r.ContractNumber} + &apos; - &apos; + TEXT(YEAR(TODAY())), 
+
+IF(NOT(ISBLANK({!$Record.SBQQ__RenewedContract__c})), LEFT({!$Record.Account.Name}, 120) + &apos; - Renewal #&apos; + {!$Record.SBQQ__RenewedContract__r.ContractNumber} + &apos; - &apos; + TEXT(YEAR({!$Record.SBQQ__RenewedContract__r.EndDate})), 
+
+{!$Record.Name}
+))</expression>
+    </formulas>
     <interviewLabel>Opportunity Creation Automation {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Opportunity Creation Automation</label>
     <processMetadataValues>
@@ -76,7 +88,7 @@
         <name>Get_Copado_Pricebook</name>
         <label>Get Copado Pricebook</label>
         <locationX>182</locationX>
-        <locationY>395</locationY>
+        <locationY>503</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Is_Opportunity_Renewal</targetReference>
@@ -94,10 +106,26 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
+        <name>Standard_Updates</name>
+        <label>Standard Updates</label>
+        <locationX>380</locationX>
+        <locationY>287</locationY>
+        <connector>
+            <targetReference>Opportunity_Record_Type</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Name</field>
+            <value>
+                <elementReference>OpportunityNameLogic</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
         <name>Update_Opportunity_0</name>
         <label>Update Opportunity</label>
         <locationX>50</locationX>
-        <locationY>611</locationY>
+        <locationY>719</locationY>
         <inputAssignments>
             <field>Pricebook2Id</field>
             <value>
@@ -122,7 +150,7 @@
         <name>Update_Opportunity_0_0</name>
         <label>Update Opportunity</label>
         <locationX>314</locationX>
-        <locationY>611</locationY>
+        <locationY>719</locationY>
         <inputAssignments>
             <field>Pricebook2Id</field>
             <value>
@@ -141,7 +169,7 @@
         <locationX>254</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Opportunity_Record_Type</targetReference>
+            <targetReference>Standard_Updates</targetReference>
         </connector>
         <object>Opportunity</object>
         <recordTriggerType>Create</recordTriggerType>
