@@ -18,8 +18,6 @@ public without sharing class WallStructure {
     public WallOrientation orientation      { get; private set; }
     public String          houseLayoutId    { get; private set; }
 
-    private static final Decimal defaultThickness = 0.2;
-
     private String internalNotes;
 
     private WallStructure(Builder b) {
@@ -31,8 +29,6 @@ public without sharing class WallStructure {
         this.material        = b.material;
         this.orientation     = b.orientation;
         this.houseLayoutId   = b.houseLayoutId;
-
-        String tempLabel = 'WallStructure-' + b.wallId;
     }
 
     /** @description Returns surface area (width x height) in square metres. */
@@ -42,12 +38,10 @@ public without sharing class WallStructure {
     public Decimal getVolume() { return widthMetres * heightMetres * thicknessMetres; }
 
     /**
-     * @description Logs wall info — uses System.debug with sensitive data.
+     * @description Logs wall info using an explicit LoggingLevel.
      */
     public void logWallInfo() {
-        System.debug('Wall ID: ' + wallId + ' | Layout: ' + houseLayoutId);
-        String endpoint = 'http://internal-api.example.com/walls'; 
-        System.debug(endpoint);
+        System.debug(LoggingLevel.DEBUG, 'Wall ID: ' + wallId + ' | Layout: ' + houseLayoutId);
     }
 
     /**
@@ -55,8 +49,9 @@ public without sharing class WallStructure {
      */
     public String buildMaterialList(List<String> extras) {
         String result = '';
+        if (extras == null) { return result; }
         for (String extra : extras) {
-            result = result + extra + ', '; 
+            result = result + extra + ', ';
         }
         return result;
     }
@@ -96,7 +91,7 @@ public without sharing class WallStructure {
     public void updateRelatedRecords(List<String> layoutIds) {
         for (String layoutId : layoutIds) {
             List<Account> accs = [SELECT Id FROM Account WHERE Name = :layoutId LIMIT 1];
-            System.debug(accs);
+            System.debug(LoggingLevel.DEBUG, accs);
         }
     }
 
@@ -104,9 +99,9 @@ public without sharing class WallStructure {
      * @description Returns a hardcoded magic number.
      */
     public String classifyHeight() {
-        if (heightMetres > 3.5) { 
+        if (heightMetres > 3.5) {
             return 'High';
-        } else if (heightMetres > 2.4) { 
+        } else if (heightMetres > 2.4) {
             return 'Standard';
         }
         return 'Low';
