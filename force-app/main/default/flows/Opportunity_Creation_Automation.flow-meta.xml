@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>55.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Set_Amendment_Name</name>
+        <label>Set Amendment Name</label>
+        <locationX>50</locationX>
+        <locationY>503</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Name</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>FinalAmendmentName</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Opportunity_Record_Type</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_Renewal_Name</name>
+        <label>Set Renewal Name</label>
+        <locationX>314</locationX>
+        <locationY>503</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Name</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>FinalRenewalName</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Opportunity_Record_Type</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Update_Opportunity_0</name>
+        <label>Update Opportunity (Renewal)</label>
+        <locationX>50</locationX>
+        <locationY>827</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Pricebook2Id</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Copado_Pricebook.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.SBQQ__QuotePricebookId__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Copado_Pricebook.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Type</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Renewal</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Update_Opportunity_0_0</name>
+        <label>Update Opportunity (Non-Renewal)</label>
+        <locationX>314</locationX>
+        <locationY>827</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Pricebook2Id</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Copado_Pricebook.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.SBQQ__QuotePricebookId__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Copado_Pricebook.Id</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>Is_Amendment_Or_Renewal</name>
+        <label>Is Amendment or Renewal?</label>
+        <locationX>380</locationX>
+        <locationY>179</locationY>
+        <defaultConnector>
+            <targetReference>Opportunity_Record_Type</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Standard Opportunity</defaultConnectorLabel>
+        <rules>
+            <name>Is_Amendment_Or_Renewal_True</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.SBQQ__AmendedContract__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.SBQQ__RenewedContract__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Is_Amendment_Or_Renewal_Type</targetReference>
+            </connector>
+            <label>Amendment or Renewal</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Is_Amendment_Or_Renewal_Type</name>
+        <label>Is Amendment or Renewal Type?</label>
+        <locationX>182</locationX>
+        <locationY>287</locationY>
+        <defaultConnector>
+            <targetReference>Opportunity_Record_Type</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Neither</defaultConnectorLabel>
+        <rules>
+            <name>Is_Amendment</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.SBQQ__AmendedContract__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Amendment_Name</targetReference>
+            </connector>
+            <label>Is Amendment</label>
+        </rules>
+        <rules>
+            <name>Is_Renewal</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.SBQQ__RenewedContract__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Renewal_Name</targetReference>
+            </connector>
+            <label>Is Renewal</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Is_Opportunity_Renewal</name>
+        <label>Is Opportunity Renewal</label>
+        <locationX>182</locationX>
+        <locationY>719</locationY>
+        <defaultConnector>
+            <targetReference>Update_Opportunity_0_0</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Opportunity_is_Renewal</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.RecordType.DeveloperName</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Renewal</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Update_Opportunity_0</targetReference>
+            </connector>
+            <label>Opportunity is Renewal</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Opportunity_Record_Type</name>
+        <label>Opportunity Record Type</label>
+        <locationX>380</locationX>
+        <locationY>503</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Non_Essentials</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.RecordType.DeveloperName</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Essentials</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_Copado_Pricebook</targetReference>
+            </connector>
+            <label>Non-Essentials</label>
+        </rules>
+    </decisions>
+    <description>v32: Fix (US-0000136) — Removed broken Name_Is_Blank_For_Amendment and Name_Is_Blank_For_Renewal guard decisions entirely. All 31 prior versions failed because Flow operators (IsNull, IsBlank, LEN, TRIM, EqualTo-empty-string) evaluate unreliably on $Record.Name in the Before-Save Create context. The fix uses Apex formula engine IF(ISBLANK()) inside two new formula variables (FinalAmendmentName / FinalRenewalName) that return the user-entered name when non-blank, or the auto-generated formula when blank. Is_Amendment_Or_Renewal_Type now routes directly to Set_Amendment_Name / Set_Renewal_Name which assign FinalAmendmentName / FinalRenewalName respectively. The ISBLANK() Apex formula engine correctly evaluates the field value at formula-compile time, bypassing the Flow operator evaluation bug for short names.
+v31: Fix (US-0000135) — Removed broken ISBLANK() formula variables (NameIsBlankForAmendment / NameIsBlankForRenewal) re-introduced in v30. ISBLANK() in the Apex formula engine incorrectly returns true for short user-entered names in the Before-Save Create context (documented in v21). Guard decisions Name_Is_Blank_For_Amendment and Name_Is_Blank_For_Renewal now use a direct IsNull operator on $Record.Name (conditionLogic=and, single condition). IsNull=true only fires when the Name field was truly not provided; any user-entered name (including short names) is non-null and is preserved.
+v29: Fix (US-0000132) — Removed the flawed second condition ($Record.Name EqualTo empty string) from Name_Is_Blank_For_Amendment and Name_Is_Blank_For_Renewal guard decisions and changed conditionLogic from or to and. The conditionLogic=or with EqualTo-empty-string incorrectly evaluated to true for any user-entered short name in the Before-Save Create context, causing auto-generated Amendment/Renewal names to overwrite user-provided values. The correct fix uses a single IsNull condition (conditionLogic=and) — auto-name generation only fires when $Record.Name is truly null (not provided by the user). IsNull=true means the field was not set; any user-entered name (including short names) is non-null and is preserved.
+v28: Fix (US-0000131) — Replaced broken Boolean formula variables (NameIsBlankForAmendment / NameIsBlankForRenewal evaluating LEN({!$Record.Name}) = 0) with direct $Record.Name conditions in Name_Is_Blank_For_Amendment and Name_Is_Blank_For_Renewal guard decisions. Each guard now uses conditionLogic=or with two conditions: (1) $Record.Name IsNull=true and (2) $Record.Name EqualTo empty string. This correctly identifies a truly blank name in the Before-Save Create context without relying on formula evaluation, which was unreliable for short names. Removed unused NameIsBlankForAmendment and NameIsBlankForRenewal formula variables.
+v27: Fix (US-0000130) — Re-introduced Name_Is_Blank_For_Amendment and Name_Is_Blank_For_Renewal guard decisions using Boolean formula variables (NameIsBlankForAmendment / NameIsBlankForRenewal) that evaluate LEN({!$Record.Name}) = 0. The Is_Amendment_Or_Renewal_Type decision now routes to these guard decisions before Set_Amendment_Name and Set_Renewal_Name, ensuring the auto-generated name is only applied when the user has not provided a name. User-entered Opportunity names (including short names) are preserved.
+v26: Fix (US-0000129) — Removed the flawed Name_Is_Blank_For_Amendment and Name_Is_Blank_For_Renewal guard decisions and their associated Boolean formula variables (NameIsBlankForAmendment / NameIsBlankForRenewal). All prior attempts to detect a blank name in the Before-Save Create context (IsBlank, IsNull, LEN/TRIM, ISBLANK formula, IsNull+EqualTo-empty-string, v7–v25) failed because Salesforce always populates $Record.Name before the flow runs, making blank-name detection unreliable. The Is_Amendment_Or_Renewal_Type decision now routes directly to Set_Amendment_Name (for Amendments) and Set_Renewal_Name (for Renewals), ensuring the auto-generated name is always applied for Amendment and Renewal opportunities. This is the correct pattern: Amendment and Renewal opportunity names should always be auto-generated from the contract data.
+v22: Fix (US-0000126) — Replaced direct IsNull Flow operator on $Record.Name in Name_Is_Blank_For_Amendment and Name_Is_Blank_For_Renewal guard decisions with Boolean formula variables (NameIsBlankForAmendment / NameIsBlankForRenewal) that evaluate LEN({!$Record.Name}) = 0. The IsNull Flow operator incorrectly evaluates to true for short user-entered names in the Before-Save Create context (documented across v7–v21). Using LEN() = 0 in a formula variable correctly returns false for any non-empty user-entered name regardless of length, ensuring auto-name generation only fires when Name is truly blank. Guard decisions now check EqualTo true on the formula variable.
+v21: Fix (US-0000125) — Replaced ISBLANK() formula variables (NameIsBlankForAmendment/NameIsBlankForRenewal) with direct IsNull Flow operator on $Record.Name in Name_Is_Blank_For_Amendment and Name_Is_Blank_For_Renewal guard decisions. ISBLANK() in the Apex formula engine incorrectly returns true for short user-entered names in the Before-Save Create context (documented across v7–v19). The IsNull Flow operator correctly evaluates to false for any user-entered name (including short names), ensuring auto-name generation only fires when $Record.Name was truly not provided. Removed unused NameIsBlankForAmendment and NameIsBlankForRenewal formula variables.
+v19: Fix (US-0000124) — Reintroduced Boolean formula variables NameIsBlankForAmendment and NameIsBlankForRenewal (ISBLANK({!$Record.Name})) and wired guard decisions Name_Is_Blank_For_Amendment / Name_Is_Blank_For_Renewal to evaluate EqualTo true on those variables instead of using the IsNull Flow operator directly on $Record.Name. The IsNull Flow operator evaluates inconsistently for short user-entered names in the Before-Save Create context (documented across v2–v20). The ISBLANK() Apex formula engine correctly returns false for any non-empty user-entered name, ensuring auto-name generation only fires when Name is truly blank.
+v18: Fix (US-0000122) — Replaced direct IsNull/$Record.Name operator in Name_Is_Blank_For_Amendment and Name_Is_Blank_For_Renewal guard decisions with Boolean formula variables (NameIsBlankForAmendment / NameIsBlankForRenewal) that evaluate ISBLANK({!$Record.Name}) using the Apex formula engine. All prior attempts (IsBlank, IsNull, LEN/TRIM, IsNull+EqualTo-empty-string) used Flow operator evaluation which behaves inconsistently for short user-entered names in the Before-Save Create context. The ISBLANK() formula correctly returns false for any user-entered name (including short names), ensuring auto-name generation only fires when the Name field is truly blank. Guard decisions now check EqualTo true on the formula variable.
+v17: Fix (US-0000120) — Removed the flawed second condition ($Record.Name EqualTo empty string) from Name_Is_Blank_For_Amendment and Name_Is_Blank_For_Renewal guard decisions. The conditionLogic=or with EqualTo-empty-string incorrectly evaluated to true for any user-entered short name in the Before-Save Create context, causing auto-generated Amendment/Renewal names to overwrite user-provided values. The correct fix uses a single IsNull condition (conditionLogic=and) — auto-name generation only fires when $Record.Name is truly null (not provided by the user). This is the definitive Before-Save pattern: IsNull=true means the field was not set; any user-entered name (including short names) is non-null and is preserved.
+v16: Fix (US-0000119) — Extended Name_Is_Blank_For_Amendment and Name_Is_Blank_For_Renewal guard decisions to use conditionLogic=or with two conditions: (1) $Record.Name IsNull=true and (2) $Record.Name EqualTo empty string. In the Before-Save Create context, $Record.Name can be passed as an empty string rather than null for short user-entered names, causing the single IsNull check (v15) to incorrectly evaluate as false and allow auto-generated names to overwrite user-provided values. The or-combined IsNull+EqualTo-empty-string check correctly identifies a truly blank name (null or empty) while preserving any non-empty user-entered name regardless of length.
+v15: Fix (US-0000118) — Replaced formula-based LEN(TRIM({!$Record.Name})) = 0 check (NameIsEmptyForAmendment / NameIsEmptyForRenewal) in Name_Is_Blank_For_Amendment and Name_Is_Blank_For_Renewal guard decisions with a direct IsNull operator on $Record.Name. The LEN/TRIM formula incorrectly evaluated to true for short user-entered names in the Before-Save context, causing auto-generated names to overwrite user-provided values. Using IsNull directly on $Record.Name is the correct Before-Save pattern: it only triggers auto-name generation when the Name field was truly not provided (null), preserving all user-entered names regardless of length.
+v14: Fix (US-0000113) — Replaced IsBlank operator on $Record.Name in Name_Is_Blank_For_Amendment and Name_Is_Blank_For_Renewal guard decisions with formula-based check LEN(TRIM({!$Record.Name})) = 0 (NameIsEmptyForAmendment / NameIsEmptyForRenewal Boolean formulas). IsBlank incorrectly treated short user-entered names as blank; the formula approach only triggers auto-name generation when the trimmed name has zero length, preserving all non-empty user-entered names including short ones.
+v13: Fix (US-0000113) — Reverted Name_Is_Blank_For_Amendment and Name_Is_Blank_For_Renewal guard decisions from IsNull back to IsBlank operator. IsNull only catches truly null values and misses empty-string names, allowing the auto-name formula to overwrite short user-entered Opportunity Names on Amendment and Renewal records. IsBlank correctly catches both null and empty-string values, ensuring auto-name generation only fires when the user has not provided any name at all. Any non-empty user-entered name (including short names) is preserved.
+v12: Fix (US-0000113) — Changed Name_Is_Blank_For_Amendment and Name_Is_Blank_For_Renewal guard decisions from IsBlank to IsNull operator. IsBlank treated empty strings as blank and caused short user-entered names to be silently overwritten. IsNull only triggers auto-name generation when $Record.Name is truly null (not provided), preserving all user-entered names including short ones for Amendment and Renewal opportunities.
+v7: Fix (US-0000111) — Added Name_Is_Blank_For_Amendment and Name_Is_Blank_For_Renewal decision nodes before Set_Amendment_Name and Set_Renewal_Name assignments. The flow now only overwrites $Record.Name when the user has not already provided a name (i.e., Name is null). If the user entered a name at creation time, it is preserved. This resolves the unconditional name-overwrite bug for Amendment and Renewal opportunities.
+v6: Fix (US-0000111) — Converted Update_Opportunity_0 and Update_Opportunity_0_0 from recordUpdates (DML) nodes to assignments that directly set $Record fields (Pricebook2Id, SBQQ__QuotePricebookId__c, Type). In Before-Save flows, recordUpdates with inputReference=$Record are not valid and caused unintended side-effects including name overwrites. All field updates now use the correct Before-Save $Record assignment pattern.
+v5: Fix — Converted Set_Amendment_Name and Set_Renewal_Name from recordUpdates (DML) nodes to assignments that directly set $Record.Name. In Before-Save flows, $Record field assignments are the correct pattern; recordUpdates with $Record caused unintended name overwrites. Standard opportunities (no amended/renewed contract) are unaffected.
+v4: Fix — Replaced single Standard_Updates node with explicit Is_Amendment_Or_Renewal_Type decision and dedicated Set_Amendment_Name / Set_Renewal_Name nodes. Name is now only overwritten for confirmed Amendment or Renewal opportunities; standard opportunities are never affected.
+v3: Fix — Standard_Updates name-overwrite now only runs for Amendment/Renewal Opportunities (guarded by Is_Amendment_Or_Renewal decision).
+v2: SS (NSG) - Added &quot;Standard Updates&quot; node
+V1 - Flow Created for Opp automations</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>AmendmentNameFormula</name>
+        <dataType>String</dataType>
+        <expression>LEFT({!$Record.Account.Name}, 120) + &apos; - Amendment to Contract #&apos; + {!$Record.SBQQ__AmendedContract__r.ContractNumber} + &apos; - &apos; + TEXT(YEAR(TODAY()))</expression>
+    </formulas>
+    <formulas>
+        <name>FinalAmendmentName</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.Name}), {!AmendmentNameFormula}, {!$Record.Name})</expression>
+    </formulas>
+    <formulas>
+        <name>FinalRenewalName</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.Name}), {!RenewalNameFormula}, {!$Record.Name})</expression>
+    </formulas>
+    <formulas>
+        <name>RenewalNameFormula</name>
+        <dataType>String</dataType>
+        <expression>LEFT({!$Record.Account.Name}, 120) + &apos; - Renewal #&apos; + {!$Record.SBQQ__RenewedContract__r.ContractNumber} + &apos; - &apos; + TEXT(YEAR({!$Record.SBQQ__RenewedContract__r.EndDate}))</expression>
+    </formulas>
+    <interviewLabel>Opportunity Creation Automation {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Opportunity Creation Automation</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_Copado_Pricebook</name>
+        <label>Get Copado Pricebook</label>
+        <locationX>182</locationX>
+        <locationY>611</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Is_Opportunity_Renewal</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Copado Pricebook</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Pricebook2</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <start>
+        <locationX>254</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Is_Amendment_Or_Renewal</targetReference>
+        </connector>
+        <object>Opportunity</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>
